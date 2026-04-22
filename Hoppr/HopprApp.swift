@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct HopprApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+  @State private var locationModel = LocationModel()
+  @State private var tripModel = TripModel()
+
+  var body: some Scene {
+    WindowGroup {
+      HomeView()
+        .environment(locationModel)
+        .environment(tripModel)
     }
+  }
 }

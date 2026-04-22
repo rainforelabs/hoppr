@@ -44,6 +44,7 @@ struct TripService {
   ) async throws -> Trip {
     let url = URL(string: "\(baseUrl)/generate")!
     var request = URLRequest(url: url)
+    request.timeoutInterval = 90.0
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.httpBody = try JSONEncoder().encode(
