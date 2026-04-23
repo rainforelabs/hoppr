@@ -9,10 +9,10 @@ import Foundation
 
 enum TaskStatus {
   case idle
-  case generating
   case fetching
-  case generated(Trip)
   case fetched
+  case generating
+  case generated(Trip)
   case failure(Error)
 }
 
@@ -62,10 +62,8 @@ class TripModel {
           preferences: preferences
         )
         status = .generated(result)
-        invalidateInput()
       } catch {
         status = .failure(error)
-        invalidateInput()
       }
     }
   }
@@ -82,7 +80,7 @@ class TripModel {
     }
   }
 
-  private func invalidateInput() {
+  func invalidateInput() {
     destination = ""
     duration = ""
     preferences = Preferences()

@@ -17,6 +17,7 @@ struct HopprApp: App {
       HomeView()
         .environment(locationModel)
         .environment(tripModel)
+        .fontDesign(.rounded)
     }
   }
 }

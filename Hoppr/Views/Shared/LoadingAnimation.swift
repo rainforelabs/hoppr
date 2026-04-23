@@ -87,5 +87,16 @@ struct LoadingAnimation: View {
 }
 
 #Preview {
-  LoadingAnimation()
+  ZStack {
+    Color(.appGrey)
+      .ignoresSafeArea()
+  }
+  .fontDesign(.rounded)
+  .sheet(isPresented: Binding.constant(true)) {
+    LoadingAnimation()
+      .presentationDetents([.fraction(0.4), .fraction(0.7)])
+      .presentationBackground(Color(.surface))
+      .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.7)))
+      .interactiveDismissDisabled()
+  }
 }

@@ -14,13 +14,8 @@ struct TripDetailView: View {
   @State private var selectedDay: Int = 1
 
   var body: some View {
-    VStack(alignment: .leading) {
-      tripItinerary
-    }
-    .safeAreaBar(edge: .top) {
-      tripDetails
-    }
-
+    tripItinerary
+      .safeAreaBar(edge: .top) { tripDetails }
   }
 
   private var tripDetails: some View {
@@ -28,11 +23,12 @@ struct TripDetailView: View {
       HStack(spacing: 16) {
         Button(action: onBack) {
           Image(systemName: "chevron.left")
+            .fontWeight(.medium)
             .frame(width: 44, height: 44)
             .glassEffect(.regular.interactive())
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .contentShape(Rectangle())
 
         Text("\(trip.destination) trip")
           .font(.title)
@@ -46,11 +42,11 @@ struct TripDetailView: View {
             let selected = selectedDay == day
 
             Button {
-              selectedDay = day
+              withAnimation(.spring(duration: 0.3)) { selectedDay = day }
             } label: {
               Text("Day-\(day)")
                 .fontWeight(selected ? .medium : .regular)
-                .foregroundStyle(Color(selected ? .white : .secondary))
+                .foregroundStyle(selected ? Color.white : Color(.tertiaryLabel))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background {
@@ -58,8 +54,7 @@ struct TripDetailView: View {
                     .fill(Color(selected ? .appBlue : .fieldFills))
                 }
             }
-            .buttonStyle(.plain)
-
+            .buttonStyle(BouncyHapticButtonStyle())
           }
         }
         .padding(.horizontal, 20)
@@ -83,49 +78,53 @@ struct TripDetailView: View {
             default: ""
             }
 
-          VStack(alignment: .leading) {
-            HStack {
-              HStack(spacing: 4) {
-                Image(systemName: dayIcon)
-                Text(label)
-              }
-              .font(.subheadline)
-              .foregroundStyle(Color(.appAsh))
-              .padding(.horizontal, 8)
-              .padding(.vertical, 4)
-              .background {
-                Capsule()
-                  .fill(Color(Color(.appAsh).opacity(0.07)))
-              }
-              HStack(spacing: 4) {
-                Text(activity.category.emoji)
-                  .font(.footnote)
-                Text(activity.category.label)
-                  .font(.subheadline)
-                  .foregroundStyle(activity.category.color)
-              }
-              .padding(.horizontal, 8)
-              .padding(.vertical, 4)
-              .background {
-                Capsule()
-                  .fill(activity.category.color.opacity(0.07))
-              }
-            }
-            Text(activity.name)
-              .font(.title3)
-              .fontWeight(.medium)
-              .padding(.bottom, 2)
-            Text(activity.description)
-              .foregroundStyle(.secondary)
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
+          Button {
+            //
+          } label: {
 
-          if label != day.slotLabels.last {
-            Divider()
-              .frame(height: 1)
-              .overlay(Color(.appGrey))
-              .padding(.vertical, 4)
+            VStack(alignment: .leading) {
+              HStack {
+                HStack(spacing: 4) {
+                  Image(systemName: dayIcon)
+                  Text(label)
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background {
+                  Capsule()
+                    .fill(Color(.quaternarySystemFill))
+                }
+                HStack(spacing: 4) {
+                  Text(activity.category.emoji)
+                    .font(.footnote)
+                  Text(activity.category.label)
+                    .font(.subheadline)
+                    .foregroundStyle(activity.category.color)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background {
+                  Capsule()
+                    .fill(activity.category.color.opacity(0.07))
+                }
+              }
+              Text(activity.name)
+                .font(.title3)
+                .fontWeight(.medium)
+                .padding(.bottom, 2)
+              Text(activity.description)
+                .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background {
+              RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.fieldFills))
+            }
           }
+          .buttonStyle(BouncyHapticButtonStyle())
         }
       }
       .padding(20)
@@ -135,16 +134,13 @@ struct TripDetailView: View {
 }
 
 #Preview {
-  ZStack {
-    Color(.appGrey)
-      .ignoresSafeArea()
-  }
-  .fontDesign(.rounded)
-  .sheet(isPresented: Binding.constant(true)) {
-    TripDetailView(trip: .preview) {}
-      .presentationDetents([.fraction(0.4), .fraction(0.7)])
-      .presentationBackground(Color(.surface))
-      .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.7)))
-      .interactiveDismissDisabled()
-  }
+  ZStack {}
+    .sheet(isPresented: Binding.constant(true)) {
+      TripDetailView(trip: .preview) {}
+        .presentationDetents([.fraction(0.4), .fraction(0.7)])
+        .presentationBackground(Color(.surface))
+        .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.7)))
+        .interactiveDismissDisabled()
+        .fontDesign(.rounded)
+    }
 }

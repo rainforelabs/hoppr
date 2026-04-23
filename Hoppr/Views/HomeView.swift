@@ -43,16 +43,51 @@ struct HomeView: View {
   }
 }
 
+private enum ContentState {
+  case list, generating
+  case detail(Trip)
+  case failure(Error)
+}
+
+extension ContentState: Equatable {
+  static func == (lhs: ContentState, rhs: ContentState) -> Bool {
+    switch (lhs, rhs) {
+    case (.list, .list), (.generating, .generating), (.failure, .failure): return true
+    case (.detail(let a), .detail(let b)): return a.id == b.id
+    default: return false
+    }
+  }
+}
+
 private struct HomeSheetContent: View {
   let tripModel: TripModel
 
+  private var contentState: ContentState {
+    switch tripModel.status {
+    case .generating: return .generating
+    case .generated(let trip): return .detail(trip)
+    case .failure(let error): return .failure(error)
+    default: return .list
+    }
+  }
+
+  private var generationSucceeded: Bool {
+    if case .detail = contentState { return true }
+    return false
+  }
+
   var body: some View {
     ZStack {
-      switch tripModel.status {
+      switch contentState {
       case .generating:
         LoadingAnimation()
-          .transition(.blurReplace)
-      case .generated(let trip):
+          .transition(
+            .asymmetric(
+              insertion: .move(edge: .trailing).combined(with: .opacity),
+              removal: .move(edge: .trailing).combined(with: .opacity)
+            )
+          )
+      case .detail(let trip):
         TripDetailView(trip: trip) {
           tripModel.status = .idle
           tripModel.fetchTrips()
@@ -64,11 +99,23 @@ private struct HomeSheetContent: View {
           )
         )
       case .failure(let error):
-        VStack {
-          Text(error.localizedDescription)
+        ErrorPlaceholder(message: error.localizedDescription) {
+          tripModel.generateTrip()
+        } onBack: {
+          tripModel.status = .idle
+          tripModel.fetchTrips()
         }
+        .transition(
+          .asymmetric(
+            insertion: .move(edge: .trailing).combined(with: .opacity),
+            removal: .move(edge: .trailing).combined(with: .opacity)
+          )
+        )
       default:
-        TripListView(trips: tripModel.trips) { trip in
+        TripListView(
+          trips: tripModel.trips,
+          isLoading: tripModel.status == .fetching
+        ) { trip in
           tripModel.status = .generated(trip)
         }
         .transition(
@@ -79,7 +126,8 @@ private struct HomeSheetContent: View {
         )
       }
     }
-    .animation(.spring(response: 0.35, dampingFraction: 0.85), value: tripModel.status)
+    .animation(.spring(response: 0.35, dampingFraction: 0.85), value: contentState)
+    .sensoryFeedback(.success, trigger: generationSucceeded)
     .presentationDetents([.fraction(0.4), .fraction(0.7)])
     .presentationBackground(Color(.surface))
     .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.7)))

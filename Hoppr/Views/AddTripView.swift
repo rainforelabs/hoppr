@@ -28,50 +28,52 @@ struct AddTripView: View {
           Text("Destination")
             .font(.callout)
             .foregroundStyle(.secondary)
-          TextField("Destination", text: $model.destination, prompt: Text("Where to hop next?"))
-            .font(.title3)
-            .keyboardType(.alphabet)
-            .textInputAutocapitalization(.sentences)
-            .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { tf in
-              DispatchQueue.main.async {
-                self.uiTextField1 = tf
-                if self.isFirstResponderSet == false {
-                  tf.becomeFirstResponder()
-                  self.isFirstResponderSet = true
-                }
+          TextField(
+            "Destination",
+            text: $model.destination,
+            prompt: Text("Where to hop next?")
+              .foregroundStyle(Color(.tertiarySystemFill))
+          )
+          .font(.title2)
+          .fontWeight(.bold)
+          .keyboardType(.alphabet)
+          .textInputAutocapitalization(.sentences)
+          .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { tf in
+            DispatchQueue.main.async {
+              self.uiTextField1 = tf
+              if self.isFirstResponderSet == false {
+                tf.becomeFirstResponder()
+                self.isFirstResponderSet = true
               }
             }
-            .submitLabel(.next)
-            .onSubmit {
-              uiTextField2?.becomeFirstResponder()
-            }
-        }
-        .padding(12)
-        .background {
-          RoundedRectangle(cornerRadius: 16)
-            .fill(Color(.fieldFills))
+          }
+          .submitLabel(.next)
+          .onSubmit {
+            uiTextField2?.becomeFirstResponder()
+          }
         }
         VStack(alignment: .leading, spacing: 4) {
           Text("Duration")
             .font(.callout)
             .foregroundStyle(.secondary)
-          TextField("Duration", text: $model.duration, prompt: Text("How many days?"))
-            .font(.title3)
-            .keyboardType(.numberPad)
-            .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { tf in
-              DispatchQueue.main.async {
-                self.uiTextField2 = tf
-              }
+          TextField(
+            "Duration",
+            text: $model.duration,
+            prompt: Text("How many days?")
+              .foregroundStyle(Color(.tertiarySystemFill))
+          )
+          .font(.title2)
+          .fontWeight(.bold)
+          .keyboardType(.numberPad)
+          .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { tf in
+            DispatchQueue.main.async {
+              self.uiTextField2 = tf
             }
-            .submitLabel(.done)
-            .onSubmit {
-              uiTextField2?.resignFirstResponder()
-            }
-        }
-        .padding(12)
-        .background {
-          RoundedRectangle(cornerRadius: 16)
-            .fill(Color(.fieldFills))
+          }
+          .submitLabel(.done)
+          .onSubmit {
+            uiTextField2?.resignFirstResponder()
+          }
         }
 
         PreferencesPickerView<Preferences.TravelStyle>(
@@ -99,16 +101,11 @@ struct AddTripView: View {
     }
     .scrollIndicators(.hidden)
     .contentShape(Rectangle())
-    .onTapGesture {
-      uiTextField1?.resignFirstResponder()
-      uiTextField2?.resignFirstResponder()
-    }
     .safeAreaBar(edge: .top) {
       HStack {
         Text("New Trip")
           .font(.title)
           .fontWeight(.semibold)
-          .foregroundStyle(.appCharcoal)
         Spacer()
         Button {
           dismiss()
@@ -116,9 +113,9 @@ struct AddTripView: View {
           Image(systemName: "xmark")
             .frame(width: 44, height: 44)
             .glassEffect(.regular.interactive())
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .contentShape(Rectangle())
       }
       .padding(.horizontal, 20)
       .padding(.top, 20)
@@ -126,18 +123,26 @@ struct AddTripView: View {
     .safeAreaBar(edge: .bottom) {
       generateButton
     }
+    .onAppear {
+      tripModel.invalidateInput()
+    }
+    .onTapGesture {
+      uiTextField1?.resignFirstResponder()
+      uiTextField2?.resignFirstResponder()
+    }
   }
 
   private var generateButton: some View {
     Button {
       tripModel.generateTrip()
+      UIImpactFeedbackGenerator(style: .light).impactOccurred()
       dismiss()
     } label: {
       Text("Generate Itinerary")
         .fontWeight(.medium)
         .foregroundStyle(.white)
-        .padding()
         .frame(maxWidth: .infinity)
+        .padding()
         .background {
           Capsule()
             .fill(
@@ -171,20 +176,20 @@ private struct PreferencesPickerView<T: CaseIterable & Hashable>: View {
           let selected = selection == item
 
           Button {
-            selection = item
+            withAnimation(.spring(duration: 0.3)) { selection = item }
           } label: {
             Text(label(item))
               .font(.subheadline)
               .fontWeight(selected ? .medium : .regular)
-              .foregroundStyle(Color(selected ? .white : .primary))
+              .foregroundStyle(selected ? Color.white : Color(.label))
               .padding(.horizontal, 16)
               .padding(.vertical, 8)
               .background {
                 Capsule()
-                  .fill(Color(selected ? .appBlue : .fieldFills))
+                  .fill(Color(selected ? .appBlue : .quaternarySystemFill))
               }
           }
-          .buttonStyle(.plain)
+          .buttonStyle(BouncyHapticButtonStyle())
         }
       }
     }
@@ -192,7 +197,12 @@ private struct PreferencesPickerView<T: CaseIterable & Hashable>: View {
 }
 
 #Preview {
-  AddTripView()
-    .environment(TripModel())
-    .fontDesign(.rounded)
+  ZStack {}
+    .sheet(isPresented: Binding.constant(true)) {
+      AddTripView()
+        .environment(TripModel())
+        .presentationBackground(Color(.surface))
+        .interactiveDismissDisabled()
+        .fontDesign(.rounded)
+    }
 }

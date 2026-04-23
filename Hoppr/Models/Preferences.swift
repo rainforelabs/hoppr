@@ -63,8 +63,7 @@ struct Preferences: Codable {
       }
     }
   }
-  
-  var labels: [String] {
-    [style.label, budget.label, group.label, pace.label]
-  }
+
+  var icons: [String] { ["mappin.and.ellipse", "dollarsign", "person", "figure.run"] }
+  var labels: [String] { [style.label, budget.label, group.label, pace.label] }
 }
