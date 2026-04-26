@@ -33,7 +33,7 @@ struct TripService {
   static let shared = TripService()
 
   private let baseUrl = "https://determined-bobcat-581.convex.site"
-  private var devideId: String {
+  private var deviceId: String {
     UIDevice.current.identifierForVendor?.uuidString ?? "N/A"
   }
 
@@ -49,7 +49,7 @@ struct TripService {
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.httpBody = try JSONEncoder().encode(
       GenerateTripRequest(
-        deviceId: devideId,
+        deviceId: deviceId,
         destination: destination,
         duration: duration,
         preferences: preferences
@@ -63,7 +63,7 @@ struct TripService {
 
   func fetchTrips() async throws -> [Trip] {
     var urlComponents = URLComponents(string: "\(baseUrl)/trips")!
-    urlComponents.queryItems = [URLQueryItem(name: "deviceId", value: devideId)]
+    urlComponents.queryItems = [URLQueryItem(name: "deviceId", value: deviceId)]
 
     let (data, response) = try await URLSession.shared.data(from: urlComponents.url!)
     try handleStatus(response, data)

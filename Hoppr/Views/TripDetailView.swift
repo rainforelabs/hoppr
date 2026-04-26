@@ -9,9 +9,8 @@ import SwiftUI
 
 struct TripDetailView: View {
   let trip: Trip
+  @Binding var selectedDay: Int
   let onBack: () -> Void
-
-  @State private var selectedDay: Int = 1
 
   var body: some View {
     tripItinerary
@@ -38,13 +37,13 @@ struct TripDetailView: View {
 
       ScrollView(.horizontal) {
         HStack(spacing: 8) {
-          ForEach(1...trip.duration, id: \.self) { day in
+          ForEach(0..<trip.duration, id: \.self) { day in
             let selected = selectedDay == day
 
             Button {
               withAnimation(.spring(duration: 0.3)) { selectedDay = day }
             } label: {
-              Text("Day-\(day)")
+              Text("Day-\(day + 1)")
                 .fontWeight(selected ? .medium : .regular)
                 .foregroundStyle(selected ? Color.white : Color(.tertiaryLabel))
                 .padding(.horizontal, 16)
@@ -67,7 +66,7 @@ struct TripDetailView: View {
   private var tripItinerary: some View {
     ScrollView {
       VStack {
-        let day = trip.itinerary[selectedDay - 1]
+        let day = trip.itinerary[selectedDay]
 
         ForEach(Array(zip(day.slotLabels, day.activities)), id: \.0) { label, activity in
           let dayIcon =
@@ -79,7 +78,7 @@ struct TripDetailView: View {
             }
 
           Button {
-            //
+            // TODO: Highlight on map and show look around overlay
           } label: {
 
             VStack(alignment: .leading) {
@@ -136,10 +135,10 @@ struct TripDetailView: View {
 #Preview {
   ZStack {}
     .sheet(isPresented: Binding.constant(true)) {
-      TripDetailView(trip: .preview) {}
-        .presentationDetents([.fraction(0.4), .fraction(0.7)])
+      TripDetailView(trip: .preview, selectedDay: Binding.constant(0)) {}
+        .presentationDetents([.fraction(0.37), .fraction(0.59)])
         .presentationBackground(Color(.surface))
-        .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.7)))
+        .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.59)))
         .interactiveDismissDisabled()
         .fontDesign(.rounded)
     }

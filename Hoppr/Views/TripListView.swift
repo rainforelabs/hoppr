@@ -38,7 +38,7 @@ struct TripListView: View {
                 TripRowSkeleton()
               }
             } else {
-              ForEach(trips, id: \.id) { trip in
+              ForEach(trips) { trip in
                 TripCard(trip: trip) { onSelect(trip) }
               }
             }
@@ -163,11 +163,11 @@ struct TripRowSkeleton: View {
 #Preview {
   ZStack {}
     .sheet(isPresented: Binding.constant(true)) {
-      TripListView(trips: [.preview], isLoading: true) { _ in }
+      TripListView(trips: [.preview], isLoading: false) { _ in }
         .environment(TripModel())
-        .presentationDetents([.fraction(0.4), .fraction(0.7)])
-        .presentationBackground(Color(.appBg))
-        .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.7)))
+        .presentationDetents([.fraction(0.37), .fraction(0.59)])
+        .presentationBackground(Color(.surface))
+        .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.59)))
         .interactiveDismissDisabled()
         .fontDesign(.rounded)
     }

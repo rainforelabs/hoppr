@@ -13,10 +13,24 @@ struct HomeView: View {
   @Environment(LocationModel.self) private var locationModel
   @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
   @State private var isSheetPresented = true
+  @State private var sheetHeight: CGFloat = 0
 
   var body: some View {
     ZStack(alignment: .top) {
-      Map(position: $cameraPosition)
+      if let trip = tripModel.trip {
+        TripMapView(trip: trip, selectedDay: tripModel.selectedDay)
+          .safeAreaInset(edge: .bottom) {
+            Color.clear
+              .frame(height: sheetHeight)
+          }
+      } else {
+        Map(position: $cameraPosition)
+          .contentMargins(.horizontal, 20)
+          .safeAreaInset(edge: .bottom) {
+            Color.clear
+              .frame(height: sheetHeight)
+          }
+      }
       Rectangle()
         .fill(.ultraThinMaterial)
         .frame(height: 150)
@@ -34,6 +48,13 @@ struct HomeView: View {
     }
     .sheet(isPresented: $isSheetPresented) {
       HomeSheetContent(tripModel: tripModel)
+        .background {
+          GeometryReader { geo in
+            Color.clear.onAppear {
+              sheetHeight = geo.size.height
+            }
+          }
+        }
     }
     .ignoresSafeArea(.keyboard)
     .onAppear {
@@ -88,9 +109,8 @@ private struct HomeSheetContent: View {
             )
           )
       case .detail(let trip):
-        TripDetailView(trip: trip) {
-          tripModel.status = .idle
-          tripModel.fetchTrips()
+        TripDetailView(trip: trip, selectedDay: Bindable(tripModel).selectedDay) {
+          tripModel.refresh()
         }
         .transition(
           .asymmetric(
@@ -102,8 +122,7 @@ private struct HomeSheetContent: View {
         ErrorPlaceholder(message: error.localizedDescription) {
           tripModel.generateTrip()
         } onBack: {
-          tripModel.status = .idle
-          tripModel.fetchTrips()
+          tripModel.refresh()
         }
         .transition(
           .asymmetric(
@@ -128,9 +147,9 @@ private struct HomeSheetContent: View {
     }
     .animation(.spring(response: 0.35, dampingFraction: 0.85), value: contentState)
     .sensoryFeedback(.success, trigger: generationSucceeded)
-    .presentationDetents([.fraction(0.4), .fraction(0.7)])
+    .presentationDetents([.fraction(0.37), .fraction(0.59)])
     .presentationBackground(Color(.surface))
-    .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.7)))
+    .presentationBackgroundInteraction(.enabled(upThrough: .fraction(0.59)))
     .interactiveDismissDisabled()
   }
 }

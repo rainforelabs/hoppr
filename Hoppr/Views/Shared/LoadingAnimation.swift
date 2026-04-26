@@ -8,6 +8,15 @@
 import SwiftUI
 
 struct LoadingAnimation: View {
+  var loadingTexts: [String] = [
+    "Scanning the best spots...",
+    "Checking hidden gems...",
+    "Building your itinerary...",
+    "Plotting the route...",
+    "Almost ready...",
+  ]
+  var textColor: Color = .secondary
+  
   private let rows: [[String]] = [
     ["✈️", "🗺️", "🧳", "🏨"],
     ["🚂", "⛵", "🚗", "🏕️"],
@@ -17,14 +26,6 @@ struct LoadingAnimation: View {
   private let rotations: [[Double]] = (0..<3).map { _ in
     (0..<4).map { _ in Double.random(in: -4...4) }
   }
-
-  private let texts: [String] = [
-    "Scanning the best spots...",
-    "Checking hidden gems...",
-    "Building your itinerary...",
-    "Plotting the route...",
-    "Almost ready...",
-  ]
 
   @State private var currentRow = 0
   @State private var textIndex = 0
@@ -59,10 +60,10 @@ struct LoadingAnimation: View {
       }
 
       ZStack {
-        ForEach(texts.indices, id: \.self) { index in
-          Text(texts[index])
+        ForEach(loadingTexts.indices, id: \.self) { index in
+          Text(loadingTexts[index])
             .font(.callout)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(textColor)
             .opacity(index == textIndex ? 1 : 0)
             .scaleEffect(index == textIndex ? 1 : 0.85)
             .blur(radius: index == textIndex ? 0 : 6)
@@ -76,10 +77,10 @@ struct LoadingAnimation: View {
         enterOrder = (0..<rows[0].count).shuffled()
         exitOrder = (0..<rows[0].count).shuffled()
         currentRow = (currentRow + 1) % rows.count
-        textIndex = (textIndex + 1) % texts.count
+        textIndex = (textIndex + 1) % loadingTexts.count
         try? await Task.sleep(for: .seconds(1.1))
 
-        textIndex = (textIndex + 1) % texts.count
+        textIndex = (textIndex + 1) % loadingTexts.count
         try? await Task.sleep(for: .seconds(1.1))
       }
     }

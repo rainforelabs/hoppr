@@ -38,6 +38,8 @@ class TripModel {
     if case .generated(let trip) = status { return trip }
     return nil
   }
+  
+  var selectedDay: Int = 0
 
   var destination: String = ""
   var duration: String = ""
@@ -78,6 +80,12 @@ class TripModel {
         status = .failure(error)
       }
     }
+  }
+  
+  func refresh() {
+    status = .idle
+    fetchTrips()
+    selectedDay = 0
   }
 
   func invalidateInput() {
