@@ -15,7 +15,7 @@ struct TripMapView: View {
 
   private let mapService = MapService()
 
-  @State private var cameraPosition: MapCameraPosition = .automatic
+  @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
   @State private var isLoading: Bool = false
   @State private var mapData: [MapData] = []
   @State private var dayItems: [MKMapItem] = []

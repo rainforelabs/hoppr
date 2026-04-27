@@ -10,7 +10,6 @@ import SwiftUI
 
 struct HomeView: View {
   @Environment(TripModel.self) private var tripModel
-  @Environment(LocationModel.self) private var locationModel
   @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
   @State private var isSheetPresented = true
   @State private var sheetHeight: CGFloat = 0
@@ -57,10 +56,7 @@ struct HomeView: View {
         }
     }
     .ignoresSafeArea(.keyboard)
-    .onAppear {
-      locationModel.getCurrentLocation()
-      tripModel.fetchTrips()
-    }
+    .onAppear { tripModel.fetchTrips() }
   }
 }
 

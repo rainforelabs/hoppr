@@ -11,13 +11,22 @@ import SwiftUI
 struct HopprApp: App {
   @State private var locationModel = LocationModel()
   @State private var tripModel = TripModel()
+  @AppStorage("onboarding") var showOnboarding = true
 
   var body: some Scene {
     WindowGroup {
-      HomeView()
-        .environment(locationModel)
-        .environment(tripModel)
+      if showOnboarding {
+        OnboardingView {
+          locationModel.getCurrentLocation()
+          showOnboarding = false
+        }
         .fontDesign(.rounded)
+      } else {
+        HomeView()
+          .environment(locationModel)
+          .environment(tripModel)
+          .fontDesign(.rounded)
+      }
     }
   }
 }
