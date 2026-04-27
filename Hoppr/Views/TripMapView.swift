@@ -59,17 +59,9 @@ struct TripMapView: View {
       if isLoading {
         ZStack {
           Rectangle()
-            .fill(.ultraThinMaterial)
+            .fill(.ultraThickMaterial)
             .ignoresSafeArea()
-          LoadingAnimation(
-            loadingTexts: [
-              "Reading the itinerary...",
-              "Looking up locations...",
-              "Plotting the route...",
-              "Placing pins on the map...",
-              "Almost ready...",
-            ]
-          )
+          MapLoadingIndicator()
         }
         .transition(.blurReplace)
       }
@@ -127,6 +119,27 @@ struct TripMapView: View {
     } else {
       lookAroundScene = nil
     }
+  }
+}
+
+private struct MapLoadingIndicator: View {
+  @State private var isAnimating: Bool = false
+
+  var body: some View {
+    VStack(spacing: 16) {
+      Image(systemName: "map")
+        .font(.title)
+        .symbolEffect(.breathe, options: .repeat(.continuous))
+      Text("Preparing your trip map")
+        .font(.subheadline)
+        .opacity(isAnimating ? 0.3 : 1.0)
+        .onAppear {
+          withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
+            isAnimating = true
+          }
+        }
+    }
+    .foregroundStyle(Color(.appBlue))
   }
 }
 
