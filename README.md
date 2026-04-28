@@ -81,7 +81,7 @@ As this is a Proof-of-Concept (POC), no API key or special credentials are neede
 
 ## License
 
-*Currently no license file detected — please clarify licensing with the repository maintainers before reusing in commercial or open source projects.*
+*Currently, no license file detected — please clarify licensing with the repository maintainers before reusing in commercial or open source projects.*
 
 ---
 
